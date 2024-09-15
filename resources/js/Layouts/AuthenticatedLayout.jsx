@@ -134,6 +134,12 @@ export default function Authenticated({ header, children }) {
             >
               Dashboard
             </ResponsiveNavLink>
+            <ResponsiveNavLink
+              href={route('chirps.index')}
+              active={route().current('chirps.index')}
+            >
+              Chirps
+            </ResponsiveNavLink>
           </div>
 
           <div className='pt-4 pb-1 border-t border-gray-200'>
