@@ -2,13 +2,10 @@ import React, { useState } from 'react';
 import Dropdown from '@/Components/Dropdown';
 import InputError from '@/Components/InputError';
 import PrimaryButton from '@/Components/PrimaryButton';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import { useForm, usePage } from '@inertiajs/react';
 
 export default function Chirp({ chirp }) {
   const { auth } = usePage().props;
-
   const [editing, setEditing] = useState(false);
 
   const { data, setData, patch, clearErrors, reset, errors } = useForm({
@@ -20,6 +17,32 @@ export default function Chirp({ chirp }) {
     patch(route('chirps.update', chirp.id), {
       onSuccess: () => setEditing(false),
     });
+  };
+
+  const getRelativeTime = (date) => {
+    const now = new Date();
+    const past = new Date(date);
+    const diffInSeconds = Math.floor((now - past) / 1000);
+
+    const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+    const units = [
+      { name: 'year', seconds: 31536000 },
+      { name: 'month', seconds: 2592000 },
+      { name: 'week', seconds: 604800 },
+      { name: 'day', seconds: 86400 },
+      { name: 'hour', seconds: 3600 },
+      { name: 'minute', seconds: 60 },
+    ];
+
+    for (const unit of units) {
+      const interval = Math.floor(diffInSeconds / unit.seconds);
+      if (interval >= 1) {
+        return rtf.format(-interval, unit.name);
+      }
+    }
+
+    return rtf.format(-diffInSeconds, 'second');
   };
 
   return (
@@ -43,7 +66,7 @@ export default function Chirp({ chirp }) {
           <div>
             <span className='text-gray-800'>{chirp.user.name}</span>
             <small className='ml-2 text-sm text-gray-600'>
-              {dayjs(chirp.created_at).fromNow()}
+              {getRelativeTime(chirp.created_at)}
             </small>
             {chirp.created_at !== chirp.updated_at && (
               <small className='text-sm text-gray-600'> &middot; edited</small>
